@@ -1,32 +1,25 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI-CD
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
     branches: [ "master" ]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   CI:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
       
-      - name: Docker Login
+      - name: Autenticando o usuario no Docker
         uses: docker/login-action@v2.0.0
         with:
           username: ${{secrets.DOCKERHUB_USER}}
           password: ${{secrets.DOCKERHUB_PWD}}
       
-      - name: Build and push Docker images
+      - name: Construindo a image e enviando para o Docker Hub
         uses: docker/build-push-action@v3.1.0
         with:
           file: ./src/Dockerfile
@@ -42,13 +35,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Kubernetes Set Context
+      - name: Definindo o Kube config
         uses: Azure/k8s-set-context@v3.0
         with:
           method: kubeconfig
           kubeconfig: ${{secrets.K8S_CONFIG}}
           
-      - name: Deploy to Kubernetes cluster
+      - name: Efetuando o deploy no Kubernetes 
         uses: Azure/k8s-deploy@v4.2
         with:
           images: wallissonbrk/kube-news:${{github.run_number}}
